@@ -1,0 +1,30 @@
+name: Build IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build (без подписи, её сделает AltStore/SideStore)
+        run: |
+          xcodebuild -project StudyApp.xcodeproj -scheme StudyApp \
+            -configuration Release -sdk iphoneos \
+            -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            build
+      - name: Pack IPA
+        run: |
+          mkdir Payload
+          cp -R build/Build/Products/Release-iphoneos/StudyApp.app Payload/
+          zip -r StudyApp.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StudyApp-ipa
+          path: StudyApp.ipa
