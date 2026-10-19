@@ -7,7 +7,7 @@ targets:
   StudyApp:
     type: application
     platform: iOS
-    sources: [Sources]
+    sources: [StudyApp.swift, SyncService.swift, Views.swift]
     info:
       path: Info.plist
       properties:
